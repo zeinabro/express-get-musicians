@@ -25,6 +25,28 @@ describe('./musicians endpoint', () => {
         expect(res.body.name).toEqual((seedMusician[1]).name)
     })
 
+    test("creates new musician", async() => {
+        const res = await request(app).post("/musicians").send({
+            name: "Zeinab",
+            instrument: "Piano"
+        })
+        expect(res.statusCode).toBe(200)
+        expect(res.body.name).toBe("Zeinab")
+    })
 
+    test("updates musician by id", async() => {
+        const res = await request(app).put("/musicians/4").send({
+            name: "New Zeinab",
+            instrument: "Piano" 
+        })
+        expect(res.statusCode).toBe(200)
+        expect(res.body.name).toEqual("New Zeinab")
+    })
+
+    test("deletes musician by id", async() => {
+        const res = await request(app).delete("/musicians/4")
+        expect(res.statusCode).toBe(200)
+        expect(res.text).toBe("Deleted successfully")
+    })
     
 })
