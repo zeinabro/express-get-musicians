@@ -8,12 +8,15 @@ const { db } = require('./db/connection');
 const { Musician } = require('./models/index')
 const app = require('./src/app');
 const seedMusician = require("./seedData");
+const supertest = require("supertest")
+const { expect, describe, test} = require("@jest/globals")
 
 
 describe('./musicians endpoint', () => {
-    // Write your tests here
-    
-    
+    test("gets all musicians", async () => {
+        const res = await request(app).get("/musicians")
+        expect(res.statusCode).toBe(200)
+    })
 
 
 
