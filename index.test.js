@@ -5,9 +5,9 @@ execSync('npm run seed');
 
 const request = require("supertest")
 const { db } = require('./db/connection');
-const { Musician } = require('./models/index')
+const { Musician, Band } = require('./models/index')
 const app = require('./src/app');
-const {seedMusician} = require("./seedData");
+const { seedMusician, seedBand } = require("./seedData");
 const supertest = require("supertest")
 const { expect, describe, test} = require("@jest/globals")
 
@@ -45,6 +45,45 @@ describe('./musicians endpoint', () => {
 
     test("deletes musician by id", async() => {
         const res = await request(app).delete("/musicians/4")
+        expect(res.statusCode).toBe(200)
+        expect(res.text).toBe("Deleted successfully")
+    })
+    
+})
+
+describe('./bands endpoint', () => {
+    test("gets all bands", async () => {
+        const res = await request(app).get("/bands")
+        expect(res.statusCode).toBe(200)
+        expect(res.body[1]).toEqual(expect.objectContaining(seedBand[1]))
+    })
+
+    test("gets band by id", async () => {
+        const res = await request(app).get("/bands/2")
+        expect(res.statusCode).toBe(200)
+        expect(res.body.name).toEqual((seedBand[1]).name)
+    })
+
+    test("creates new band", async() => {
+        const res = await request(app).post("/bands").send({
+            name: "Zeinab's band",
+            genre: "Rock"
+        })
+        expect(res.statusCode).toBe(200)
+        expect(res.body.name).toBe("Zeinab's band")
+    })
+
+    test("updates band by id", async() => {
+        const res = await request(app).put("/bands/4").send({
+            name: "New Zeinab Band",
+            genre: "Rock" 
+        })
+        expect(res.statusCode).toBe(200)
+        expect(res.body.name).toEqual("New Zeinab Band")
+    })
+
+    test("deletes band by id", async() => {
+        const res = await request(app).delete("/bands/4")
         expect(res.statusCode).toBe(200)
         expect(res.text).toBe("Deleted successfully")
     })
