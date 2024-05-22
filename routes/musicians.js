@@ -19,7 +19,9 @@ musicianRouter.use(express.urlencoded())
 
 const validator = [
     check("name").trim().not().isEmpty(),
-    check("instrument").trim().not().isEmpty()
+    check("instrument").trim().not().isEmpty(),
+    check("name").isLength({min: 2, max: 20}),
+    check("instrument").isLength({min: 2, max: 20})
 ]
 
 musicianRouter.post("/", validator, async(req,res) => {
@@ -36,17 +38,22 @@ musicianRouter.post("/", validator, async(req,res) => {
 
 })
 
-musicianRouter.put("/:id", async(req,res) => {
-    await Musician.update({
-        name: req.body.name,
-        instrument: req.body.instrument
-    },{
-        where: {
-            id: req.params.id
-        }
-    })
-    const musician = await Musician.findByPk(req.params.id)
-    res.json(musician)
+musicianRouter.put("/:id", validator, async(req,res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        res.status(400).json({error: errors.array()})
+    } else {
+        await Musician.update({
+            name: req.body.name,
+            instrument: req.body.instrument
+        },{
+            where: {
+                id: req.params.id
+            }
+        })
+        const musician = await Musician.findByPk(req.params.id)
+        res.json(musician)
+    }
 })
 
 musicianRouter.delete("/:id", async(req,res) => {

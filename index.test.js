@@ -34,7 +34,7 @@ describe('./musicians endpoint', () => {
         expect(res.body.name).toBe("Zeinab")
     })
 
-    test("error when creating musician with invalid info", async() => {
+    test("error when creating musician with empty info", async() => {
         const res = await request(app).post("/musicians").send({
             name: " ",
             instrument: " "
@@ -56,13 +56,57 @@ describe('./musicians endpoint', () => {
         })
     })
 
-    test("updates musician by id", async() => {
+    test("error when creating musician with invalid info", async() => {
+        const res = await request(app).post("/musicians").send({
+            name: "A super long name that is over 20 characters",
+            instrument: "x"
+        })
+        expect(res.statusCode).toBe(400)
+        expect(res.body.error[0]).toEqual({
+            "type": "field",
+            "value": "A super long name that is over 20 characters",
+            "msg": "Invalid value",
+            "path": "name",
+            "location": "body"
+        })
+        expect(res.body.error[1]).toEqual({
+            "type": "field",
+            "value": "x",
+            "msg": "Invalid value",
+            "path": "instrument",
+            "location": "body"
+        })
+    })
+
+    test("updates musician by id with valid info", async() => {
         const res = await request(app).put("/musicians/4").send({
             name: "New Zeinab",
             instrument: "Piano" 
         })
         expect(res.statusCode).toBe(200)
         expect(res.body.name).toEqual("New Zeinab")
+    })
+
+    test("cannot update musician with invalid info", async() => {
+        const res = await request(app).put("/musicians/4").send({
+            name: "x",
+            instrument: ""
+        })
+        expect(res.statusCode).toBe(400)
+        expect(res.body.error[1]).toEqual({
+            "type": "field",
+            "value": "x",
+            "msg": "Invalid value",
+            "path": "name",
+            "location": "body"
+        })
+        expect(res.body.error[0]).toEqual({
+            "type": "field",
+            "value": "",
+            "msg": "Invalid value",
+            "path": "instrument",
+            "location": "body"
+        })
     })
 
     test("deletes musician by id", async() => {
