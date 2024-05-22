@@ -25,13 +25,35 @@ describe('./musicians endpoint', () => {
         expect(res.body.name).toEqual((seedMusician[1]).name)
     })
 
-    test("creates new musician", async() => {
+    test("creates new musician with valid info", async() => {
         const res = await request(app).post("/musicians").send({
             name: "Zeinab",
             instrument: "Piano"
         })
         expect(res.statusCode).toBe(200)
         expect(res.body.name).toBe("Zeinab")
+    })
+
+    test("error when creating musician with invalid info", async() => {
+        const res = await request(app).post("/musicians").send({
+            name: " ",
+            instrument: " "
+        })
+        expect(res.statusCode).toBe(400)
+        expect(res.body.error[0]).toEqual({
+            "type": "field",
+            "value": "",
+            "msg": "Invalid value",
+            "path": "name",
+            "location": "body"
+        })
+        expect(res.body.error[1]).toEqual({
+            "type": "field",
+            "value": "",
+            "msg": "Invalid value",
+            "path": "instrument",
+            "location": "body"
+        })
     })
 
     test("updates musician by id", async() => {
